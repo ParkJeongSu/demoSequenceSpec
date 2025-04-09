@@ -1,104 +1,137 @@
 <template>
-  <div class="sequence-canvas">
-    <!-- Actor Header -->
-    <div class="actors">
-      <div
-        v-for="actor in actors"
-        :key="actor.id"
-        class="actor-box"
-      >
-        {{ actor.name }}
-      </div>
-    </div>
-    <v-btn
-  variant="outlined"
-  size="small"
-  class="mt-4"
-  v-if="actors.length >= 2"
-  @click="$emit('connect-message', actors[0].id, actors[1].id)"
->
-  메시지 연결 테스트 (0→1)
-</v-btn>
-    <!-- 메시지 영역 -->
-    <div class="messages">
-      <div
-        v-for="message in messages"
-        :key="message.id"
-        class="message-row"
-        @dblclick="$emit('double-click-message', message.id)"
-      >
-        <span class="from">{{ getActorName(message.from) }}</span>
-        →
-        <span class="to">{{ getActorName(message.to) }}</span>
-        <span class="name">({{ message.name }})</span>
+  <div class="canvas-wrapper"
+  @scroll="handleScroll"
+  ref="scrollRef"
+  >
+   <!-- Actor columns -->
+    <div
+      v-for="actor in actors"
+      :key="actor.id"
+      class="actor-column"
+    >
+    <div class="actor-label">{{ actor.name }}</div>
+
+      <!-- 가상 포인트들 -->
+      <div class="point-container">
+        <div
+          v-for="i in virtualPointCount"
+          :key="`pt-${actor.id}-${i}`"
+          class="virtual-point"
+          @mousedown="startDrag(actor.id, i * gap)"
+        />
       </div>
     </div>
   </div>
+
+  <svg class="drag-line-layer" v-if="isDragging">
+  <line
+    :x1="startX"
+    :y1="startY"
+    :x2="mousePos.x"
+    :y2="mousePos.y"
+    stroke="#1976d2"
+    stroke-width="2"
+  />
+</svg>
 </template>
 
 <script setup lang="ts">
-import type { Actor, Message } from '@/stores/project'
+import type { Actor } from '@/stores/project'
+import { ref, onMounted, onUnmounted } from 'vue'
 
-const { actors, messages } = defineProps<{
+defineProps<{
   actors: Actor[]
-  messages: Message[]
 }>()
 
-defineEmits<{
-  (e: 'double-click-message', messageId: string): void
-  (e: 'connect-message', fromId: string, toId: string): void
-}>()
+const gap = 50
+const virtualPointCount = ref(20)
 
-// 유틸: actor 이름 가져오기
-const getActorName = (id: string) => {
-  const actor = actors.find((a) => a.id === id)
-  return actor ? actor.name : 'Unknown'
+const isDragging = ref(false)
+const dragStart = ref<{ actorId: string, y: number } | null>(null)
+const mousePos = ref({ x: 0, y: 0 })
+
+const startX = 300
+const startY = dragStart.value?.y ?? 0
+
+function handleScroll(e: Event) {
+  const target = e.target as HTMLElement
+  const nearBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - 100
+
+  if (nearBottom) {
+    virtualPointCount.value += 10 // 스크롤 아래에 도달하면 10개 추가
+  }
 }
+
+function startDrag(actorId: string, y: number) {
+  isDragging.value = true
+  dragStart.value = { actorId, y }
+  window.addEventListener('mousemove', onMouseMove)
+  window.addEventListener('mouseup', onMouseUp)
+}
+
+function onMouseMove(e: MouseEvent) {
+  mousePos.value = { x: e.clientX, y: e.clientY }
+}
+
+function onMouseUp() {
+  isDragging.value = false
+  window.removeEventListener('mousemove', onMouseMove)
+  window.removeEventListener('mouseup', onMouseUp)
+
+  // TODO: 도착 Actor 판별 → emit('connect-message', fromId, toId)
+  console.log('드래그 끝 위치:', mousePos.value)
+  // emit 예시: emit('connect-message', dragStart.value.actorId, toActorId)
+}
+
 </script>
 
+
 <style scoped>
-.sequence-canvas {
+.canvas-wrapper {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.actors {
-  display: flex;
-  gap: 16px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #ccc;
-}
-
-.actor-box {
-  padding: 8px 12px;
-  background-color: #e0e0e0;
-  border-radius: 8px;
-  min-width: 100px;
-  text-align: center;
-  font-weight: 500;
-}
-
-.messages {
-  padding-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.message-row {
-  padding: 4px 8px;
+  flex-direction: row;
+  gap: 24px;
+  padding: 24px;
   background-color: #f5f5f5;
-  border-left: 4px solid #1976d2;
+  overflow-x: auto;
+  overflow-y: auto;
+  height: 600px; /* 스크롤 생기게 하기 위한 제한 */
+}
+
+.actor-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 120px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.actor-label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.point-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.virtual-point {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #2196f3;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background-color 0.2s;
 }
 
-.message-row:hover {
-  background-color: #e3f2fd;
+.virtual-point:hover {
+  background-color: #1565c0;
 }
 
-.from, .to, .name {
-  margin-right: 8px;
-}
 </style>

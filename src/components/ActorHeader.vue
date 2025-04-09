@@ -1,15 +1,5 @@
 <template>
   <div class="d-flex align-center justify-space-between">
-    <div class="d-flex gap-4">
-      <v-chip
-        v-for="actor in actors"
-        :key="actor.id"
-        color="primary"
-        variant="outlined"
-      >
-        {{ actor.name }}
-      </v-chip>
-    </div>
 
     <div>
       <v-btn icon @click="$emit('add-actor')">

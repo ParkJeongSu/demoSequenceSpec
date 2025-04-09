@@ -12,8 +12,8 @@
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
-    "electron": "electron .",
-    "dev:electron": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\""
+    "electron": "electron electron/main.js",
+    "dev:electron": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron electron/main.js\""
   },
   "dependencies": {
     "nanoid": "^5.1.5",

@@ -1,7 +1,6 @@
 <template>
   <v-navigation-drawer app permanent width="300">
     <v-list dense>
-
       <!-- 그룹 목록 -->
       <v-subheader>그룹</v-subheader>
       <GroupList
@@ -24,7 +23,6 @@
         @delete-item="deleteItem"
         @add-item="addItem"
       />
-
     </v-list>
   </v-navigation-drawer>
 </template>

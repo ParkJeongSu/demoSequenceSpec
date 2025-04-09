@@ -1,19 +1,8 @@
 <template>
   <div v-if="sequence" class="pa-4 fill-height d-flex flex-column">
 
-    <v-btn
-  class="mt-2"
-  @click="connectMessage(sequence.value?.actors[0]?.id || '', sequence.value?.actors[1]?.id || '')"
-  v-if="sequence?.actors.length >= 2"
->
-  테스트 메시지 추가
-</v-btn>
     <!-- 오브젝트 헤더 -->
-    <ActorHeader
-      :actors="sequence.actors"
-      @add-actor="addActor"
-      @remove-actor="removeActor"
-    />
+    <ActorHeader :actors="sequence.actors" @add-actor="addActor" @remove-actor="removeActor" />
 
     <v-divider class="my-2" />
 
@@ -21,9 +10,10 @@
     <SequenceCanvas
       :actors="sequence.actors"
       :messages="sequence.messages"
-      @connect-message="connectMessage"
+
       @double-click-message="editMessage"
     />
+    <!-- @connect-message="connectMessage" -->
 
     <!-- 메시지 스펙 팝업 -->
     <MessageSpecEditor
@@ -44,6 +34,7 @@ import ActorHeader from './ActorHeader.vue'
 import SequenceCanvas from './SequenceCanvas.vue'
 import MessageSpecEditor from './MessageSpecEditor.vue'
 import type { Actor, Message } from '@/stores/project'
+import type { Point } from '@/stores/project' // Point 타입도 import 필요
 
 const store = useProjectStore()
 const sequence = computed(() => store.currentSequence)
@@ -53,7 +44,11 @@ const editingMessage = ref<Message | null>(null)
 // Actor 추가
 const addActor = () => {
   if (sequence.value) {
-    sequence.value.actors.push({ id: crypto.randomUUID(), name: `Actor ${sequence.value.actors.length + 1}` })
+    sequence.value.actors.push({
+      id: crypto.randomUUID(),
+      name: `Actor ${sequence.value.actors.length + 1}`,
+      points: [] as Point[], // ← 여기를 추가!
+    })
     store.markChanged()
   }
 }
@@ -67,21 +62,22 @@ const removeActor = () => {
 }
 
 // 메시지 연결
-const connectMessage = (fromId: string, toId: string) => {
-  if (sequence.value) {
-    sequence.value.messages.push({
-      id: crypto.randomUUID(),
-      from: fromId,
-      to: toId,
-      name: 'NewMessage',
-      spec: {
-        description: '',
-        fields: [],
-      },
-    })
-    store.markChanged()
-  }
-}
+// const connectMessage = (fromId: string, toId: string) => {
+//   if (sequence.value) {
+//     sequence.value.messages.push({
+//       id: crypto.randomUUID(),
+//       fromActorId: fromId,
+//       fromPoint: toId,
+//       toActorId: fromId,
+//       toPoint: toId,
+//       spec: {
+//         description: '',
+//         fields: [],
+//       },
+//     })
+//     store.markChanged()
+//   }
+// }
 
 // 메시지 수정
 const editMessage = (messageId: string) => {
