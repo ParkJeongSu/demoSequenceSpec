@@ -49,6 +49,8 @@ const load = () => {
 .main-container {
   height: calc(100vh - 64px); /* AppBar 높이 제외 */
   display: flex;
+  position: relative;
+
 }
 
 .sidebar {
@@ -62,6 +64,6 @@ const load = () => {
   flex: 1;
   background-color: #fafafa;
   overflow-y: auto;
-
+  height: 100%; /* 혹시 fill-height가 의도대로 작동하지 않으면 */
 }
 </style>

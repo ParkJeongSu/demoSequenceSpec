@@ -15,9 +15,7 @@ function createWindow() {
     width: 1200,
     height: 800,
     webPreferences: {
-      //preload: path.resolve(__dirname, 'preload.js'),
       preload: path.join(__dirname, 'preload.js'),
-      // preload: preloadPath, // ✅ 절대 경로로 확실하게 지정
       contextIsolation: true,
       nodeIntegration: false,
     },
@@ -29,8 +27,6 @@ function createWindow() {
 app.whenReady().then(() => {
   console.log(path.join(__dirname, 'preload.js'))
   console.log('PRELOAD PATH:', path.join(__dirname, 'preload.js'))
-
-
 
   createWindow()
 

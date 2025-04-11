@@ -4,14 +4,26 @@
       <v-card-title>메시지 스펙 편집</v-card-title>
 
       <v-card-text>
-        <v-text-field label="메시지 이름" v-model="form.name" required />
-        <v-textarea label="설명" v-model="form.spec.description" rows="3" />
+        <v-text-field
+          label="메시지 이름"
+          v-model="form.messageName"
+          required
+        />
+        <v-textarea
+          label="설명"
+          v-model="form.description"
+          rows="3"
+        />
 
         <v-divider class="my-4" />
 
         <div>
           <v-subheader>필드 목록</v-subheader>
-          <v-row v-for="(field, index) in form.spec.fields" :key="index" class="mb-2">
+          <v-row
+            v-for="(field, index) in form.fields"
+            :key="index"
+            class="mb-2"
+          >
             <v-col cols="4">
               <v-text-field v-model="field.name" label="필드명" dense />
             </v-col>
@@ -44,14 +56,16 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import type { Message, MessageField } from '@/stores/project'
+import type { Ref } from 'vue'
+import type { MessageField } from '@/stores/project'
+import type { MessageSpec } from '@/stores/project'
 
 const props = defineProps<{
-  message: Message
+  message: MessageSpec
 }>()
 
 const emit = defineEmits<{
-  (e: 'update-message', msg: Message): void
+  (e: 'update-spec', spec: MessageSpec): void
   (e: 'close-editor'): void
 }>()
 
@@ -59,21 +73,21 @@ const emit = defineEmits<{
 const dialog = ref(true)
 
 // 로컬 상태로 복사 (편집용)
-const form = ref<Message>(JSON.parse(JSON.stringify(props.message)))
+const form: Ref<MessageSpec> = ref(JSON.parse(JSON.stringify(props.message)))
 
 // 필드 추가/삭제
 const addField = () => {
   const newField: MessageField = { name: '', type: '', desc: '' }
-  form.value.spec.fields.push(newField)
+  form.value?.fields.push(newField)
 }
 
 const removeField = (index: number) => {
-  form.value.spec.fields.splice(index, 1)
+  form.value?.fields.splice(index, 1)
 }
 
 // 저장 처리
 const save = () => {
-  emit('update-message', form.value)
+  emit('update-spec', form.value)
   dialog.value = false
 }
 </script>

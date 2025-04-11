@@ -9,6 +9,7 @@ export interface MessageField {
 }
 
 export interface MessageSpec {
+  messageName: string
   description: string
   fields: MessageField[]
 }
@@ -16,20 +17,15 @@ export interface MessageSpec {
 export interface Message {
   id: string
   fromActorId: string
-  fromPoint: Point
+  fromLogicalY: number
   toActorId: string
-  toPoint: Point
+  toLogicalY: number
   spec?: MessageSpec
-}
-export interface Point {
-  id: string
-  top: number
 }
 
 export interface Actor {
   id: string
   name: string
-  points: Point[]
 }
 
 export interface Sequence {

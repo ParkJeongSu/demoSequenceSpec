@@ -17,41 +17,86 @@
           v-for="i in virtualPointCount"
           :key="`pt-${actor.id}-${i}`"
           class="virtual-point"
-          @mousedown="startDrag(actor.id, i * gap)"
+          :ref="(el) => registerPoint(el, actor.id, i)"
+          @mousedown="startDrag(actor.id, i)"
         />
       </div>
     </div>
+    <svg style="border: 2px dashed red;" class="svg-message-layer">
+    <line
+      v-for="message in messages"
+      :key="message.id"
+      :x1="getActorX(message.fromActorId)"
+      :y1="getYByLogicalIndex(message.fromLogicalY)"
+      :x2="getActorX(message.toActorId)"
+      :y2="getYByLogicalIndex(message.toLogicalY)"
+      stroke="#1976d2"
+      stroke-width="2"
+    />
+
+    <line
+  :x1="getActorX('e174263e-2c39-4371-b4fd-2dfc0ac7439d')"
+  :y1="getYByLogicalIndex(8)"
+  :x2="getActorX('1b45f1a2-82c4-4cbd-b7eb-757f75955332')"
+  :y2="getYByLogicalIndex(8)"
+  stroke="red"
+  stroke-width="2"
+/>
+<circle
+  :cx="getActorX('e174263e-2c39-4371-b4fd-2dfc0ac7439d')"
+  :cy="getYByLogicalIndex(8)"
+  r="4"
+  fill="green"
+/>
+<circle
+  :cx="getActorX('1b45f1a2-82c4-4cbd-b7eb-757f75955332')"
+  :cy="getYByLogicalIndex(8)"
+  r="4"
+  fill="blue"
+/>
+  </svg>
   </div>
 
-  <svg class="drag-line-layer" v-if="isDragging">
-  <line
-    :x1="startX"
-    :y1="startY"
-    :x2="mousePos.x"
-    :y2="mousePos.y"
-    stroke="#1976d2"
-    stroke-width="2"
-  />
-</svg>
+
+
 </template>
 
 <script setup lang="ts">
-import type { Actor } from '@/stores/project'
+import type { Actor ,Message} from '@/stores/project'
+import type { ComponentPublicInstance } from 'vue'
 import { ref, onMounted, onUnmounted } from 'vue'
 
-defineProps<{
-  actors: Actor[]
+type PointRef = {
+  actorId: string
+  logicalY: number
+  el: HTMLElement
+}
+
+const pointRefs = ref<PointRef[]>([])
+
+const emit = defineEmits<{
+  (e: 'connect-message', from: { actorId: string; logicalY: number }, to: { actorId: string; logicalY: number }): void
 }>()
 
-const gap = 50
+
+
+const props = defineProps<{
+  actors: Actor[]
+  messages: Message[]
+}>()
+
+const actors = props.actors
+const messages = props.messages
+
+const actorWidth = 120
+const actorGap = 24
+
+const pointGap = 50 // 포인트 간격 (픽셀 기준)
 const virtualPointCount = ref(20)
 
 const isDragging = ref(false)
-const dragStart = ref<{ actorId: string, y: number } | null>(null)
+const dragStart = ref<{ actorId: string; logicalY: number } | null>(null)
 const mousePos = ref({ x: 0, y: 0 })
-
-const startX = 300
-const startY = dragStart.value?.y ?? 0
 
 function handleScroll(e: Event) {
   const target = e.target as HTMLElement
@@ -62,9 +107,10 @@ function handleScroll(e: Event) {
   }
 }
 
-function startDrag(actorId: string, y: number) {
+function startDrag(actorId: string, logicalY: number) {
+  console.log('dragStart 등록됨:', actorId, logicalY)
   isDragging.value = true
-  dragStart.value = { actorId, y }
+  dragStart.value = { actorId:actorId, logicalY : logicalY }
   window.addEventListener('mousemove', onMouseMove)
   window.addEventListener('mouseup', onMouseUp)
 }
@@ -78,10 +124,67 @@ function onMouseUp() {
   window.removeEventListener('mousemove', onMouseMove)
   window.removeEventListener('mouseup', onMouseUp)
 
-  // TODO: 도착 Actor 판별 → emit('connect-message', fromId, toId)
-  console.log('드래그 끝 위치:', mousePos.value)
-  // emit 예시: emit('connect-message', dragStart.value.actorId, toActorId)
+  if (!dragStart.value) {
+    console.warn('드래그 시작 포인트가 null입니다. emit 중단')
+    return
+  }
+
+  const threshold = 20
+  let nearestPoint: PointRef | null = null
+  let minDistance = Infinity
+
+  for (const point of pointRefs.value) {
+    const rect = point.el.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+
+    const dx = mousePos.value.x - centerX
+    const dy = mousePos.value.y - centerY
+    const distance = Math.sqrt(dx * dx + dy * dy)
+
+    if (distance < threshold && distance < minDistance) {
+      nearestPoint = point
+      minDistance = distance
+    }
+  }
+
+  if (nearestPoint) {
+    console.log('연결 성공:', dragStart.value.actorId, '→', nearestPoint.actorId)
+    console.log('연결 y좌표:', dragStart.value.logicalY, '→', nearestPoint.logicalY)
+
+    emit('connect-message',
+      {
+        actorId: dragStart.value.actorId,
+        logicalY: dragStart.value.logicalY
+      },
+      {
+        actorId: nearestPoint.actorId,
+        logicalY: nearestPoint.logicalY
+      }
+    )
+  } else {
+    console.log('도착 포인트 없음, 연결 안함')
+  }
 }
+
+
+function registerPoint(el: Element | ComponentPublicInstance | null, actorId: string, logicalY: number) {
+  if (el instanceof HTMLElement) {
+    pointRefs.value.push({ actorId, logicalY, el })
+  }
+}
+
+
+function getActorX(actorId: string): number {
+  const index = actors.findIndex((a) => a.id === actorId)
+  if (index === -1) return 0
+  return index * (actorWidth + actorGap) + actorWidth / 2 + 18
+}
+
+function getYByLogicalIndex(logicalY: number) {
+  return logicalY * (pointGap-18) + (pointGap / 2)
+}
+
 
 </script>
 
@@ -95,7 +198,11 @@ function onMouseUp() {
   background-color: #f5f5f5;
   overflow-x: auto;
   overflow-y: auto;
-  height: 600px; /* 스크롤 생기게 하기 위한 제한 */
+  height: 600px;  /* 스크롤 생기게 하기 위한 제한 */
+  min-height: 1000px;
+  overflow: visible;
+  position: relative; /* 꼭 필요함! */
+  border: 2px dashed red; /* 테스트용 */
 }
 
 .actor-column {
@@ -133,5 +240,17 @@ function onMouseUp() {
 .virtual-point:hover {
   background-color: #1565c0;
 }
+
+.svg-message-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
 
 </style>
