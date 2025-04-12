@@ -22,7 +22,20 @@
         />
       </div>
     </div>
-    <svg style="border: 2px dashed red;" class="svg-message-layer">
+    <svg class="svg-message-layer">
+      <defs>
+    <marker
+      id="arrowhead"
+      markerWidth="10"
+      markerHeight="7"
+      refX="10"
+      refY="3.5"
+      orient="auto"
+      markerUnits="strokeWidth"
+    >
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2" />
+    </marker>
+  </defs>
     <line
       v-for="message in messages"
       :key="message.id"
@@ -32,31 +45,46 @@
       :y2="getYByLogicalIndex(message.toLogicalY)"
       stroke="#1976d2"
       stroke-width="2"
+      marker-end="url(#arrowhead)"
     />
-
-    <line
-  :x1="getActorX('e174263e-2c39-4371-b4fd-2dfc0ac7439d')"
-  :y1="getYByLogicalIndex(8)"
-  :x2="getActorX('1b45f1a2-82c4-4cbd-b7eb-757f75955332')"
-  :y2="getYByLogicalIndex(8)"
-  stroke="red"
-  stroke-width="2"
-/>
-<circle
-  :cx="getActorX('e174263e-2c39-4371-b4fd-2dfc0ac7439d')"
-  :cy="getYByLogicalIndex(8)"
-  r="4"
-  fill="green"
-/>
-<circle
-  :cx="getActorX('1b45f1a2-82c4-4cbd-b7eb-757f75955332')"
-  :cy="getYByLogicalIndex(8)"
-  r="4"
-  fill="blue"
-/>
+    <text
+    v-for="message in messages"
+    :key="message.id + '-label'"
+    :x="(getActorX(message.fromActorId) + getActorX(message.toActorId)) / 2"
+    :y="(getYByLogicalIndex(message.fromLogicalY) + getYByLogicalIndex(message.toLogicalY)) / 2 - 8"
+    font-size="12"
+    fill="#333"
+    text-anchor="middle"
+    pointer-events="auto"
+    @dblclick="handleDoubleClick(message.id)"
+    >
+    {{ message.spec?.messageName || 'NewMessage' }}
+  </text>
   </svg>
   </div>
 
+  <!--
+          <line
+      :x1="getActorX('e174263e-2c39-4371-b4fd-2dfc0ac7439d')"
+      :y1="getYByLogicalIndex(9)"
+      :x2="getActorX('1b45f1a2-82c4-4cbd-b7eb-757f75955332')"
+      :y2="getYByLogicalIndex(9)"
+      stroke="red"
+      stroke-width="2"
+    />
+    <circle
+      :cx="getActorX('e174263e-2c39-4371-b4fd-2dfc0ac7439d')"
+      :cy="getYByLogicalIndex(9)"
+      r="4"
+      fill="green"
+    />
+    <circle
+      :cx="getActorX('1b45f1a2-82c4-4cbd-b7eb-757f75955332')"
+      :cy="getYByLogicalIndex(9)"
+      r="4"
+      fill="blue"
+    />
+  -->
 
 
 </template>
@@ -76,8 +104,8 @@ const pointRefs = ref<PointRef[]>([])
 
 const emit = defineEmits<{
   (e: 'connect-message', from: { actorId: string; logicalY: number }, to: { actorId: string; logicalY: number }): void
+  (e: 'double-click-message', messageId: string): void
 }>()
-
 
 
 const props = defineProps<{
@@ -178,11 +206,16 @@ function registerPoint(el: Element | ComponentPublicInstance | null, actorId: st
 function getActorX(actorId: string): number {
   const index = actors.findIndex((a) => a.id === actorId)
   if (index === -1) return 0
-  return index * (actorWidth + actorGap) + actorWidth / 2 + 18
+  return index * (actorWidth + actorGap) + actorWidth / 2
 }
 
 function getYByLogicalIndex(logicalY: number) {
-  return logicalY * (pointGap-18) + (pointGap / 2)
+  return logicalY * (pointGap+10) - 15
+}
+
+function handleDoubleClick(id: string) {
+  console.log('더블클릭한 메시지 ID:', id);
+  emit('double-click-message', id)
 }
 
 
@@ -193,8 +226,10 @@ function getYByLogicalIndex(logicalY: number) {
 .canvas-wrapper {
   display: flex;
   flex-direction: row;
-  gap: 24px;
-  padding: 24px;
+  /*gap: 24px;*/
+  gap: v-bind(actorGap + 'px');
+  /*padding: 24px;*/
+  padding: v-bind(padding + 'px');
   background-color: #f5f5f5;
   overflow-x: auto;
   overflow-y: auto;
@@ -225,7 +260,8 @@ function getYByLogicalIndex(logicalY: number) {
 .point-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  /*gap: 16px;*/
+  gap : v-bind(pointGap + 'px');
 }
 
 .virtual-point {
@@ -250,6 +286,7 @@ function getYByLogicalIndex(logicalY: number) {
   min-height: 100%;
   pointer-events: none;
   z-index: 10;
+  padding: v-bind(padding + 'px');
 }
 
 
