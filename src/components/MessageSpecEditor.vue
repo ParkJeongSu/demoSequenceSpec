@@ -4,26 +4,14 @@
       <v-card-title>메시지 스펙 편집</v-card-title>
 
       <v-card-text>
-        <v-text-field
-          label="메시지 이름"
-          v-model="form.messageName"
-          required
-        />
-        <v-textarea
-          label="설명"
-          v-model="form.description"
-          rows="3"
-        />
+        <v-text-field label="메시지 이름" v-model="form.messageName" required />
+        <v-textarea label="설명" v-model="form.description" rows="3" />
 
         <v-divider class="my-4" />
 
         <div>
           <v-subheader>필드 목록</v-subheader>
-          <v-row
-            v-for="(field, index) in form.fields"
-            :key="index"
-            class="mb-2"
-          >
+          <v-row v-for="(field, index) in form.fields" :key="index" class="mb-2">
             <v-col cols="4">
               <v-text-field v-model="field.name" label="필드명" dense />
             </v-col>

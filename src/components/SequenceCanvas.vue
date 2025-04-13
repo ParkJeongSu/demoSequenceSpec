@@ -1,15 +1,8 @@
 <template>
-  <div class="canvas-wrapper"
-  @scroll="handleScroll"
-  ref="scrollRef"
-  >
-   <!-- Actor columns -->
-    <div
-      v-for="actor in actors"
-      :key="actor.id"
-      class="actor-column"
-    >
-    <div class="actor-label">{{ actor.name }}</div>
+  <div class="canvas-wrapper" @scroll="handleScroll" ref="scrollRef">
+    <!-- Actor columns -->
+    <div v-for="actor in actors" :key="actor.id" class="actor-column">
+      <div class="actor-label">{{ actor.name }}</div>
 
       <!-- 가상 포인트들 -->
       <div class="point-container">
@@ -24,43 +17,46 @@
     </div>
     <svg class="svg-message-layer">
       <defs>
-    <marker
-      id="arrowhead"
-      markerWidth="10"
-      markerHeight="7"
-      refX="10"
-      refY="3.5"
-      orient="auto"
-      markerUnits="strokeWidth"
-    >
-      <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2" />
-    </marker>
-  </defs>
-    <line
-      v-for="message in messages"
-      :key="message.id"
-      :x1="getActorX(message.fromActorId)"
-      :y1="getYByLogicalIndex(message.fromLogicalY)"
-      :x2="getActorX(message.toActorId)"
-      :y2="getYByLogicalIndex(message.toLogicalY)"
-      stroke="#1976d2"
-      stroke-width="2"
-      marker-end="url(#arrowhead)"
-    />
-    <text
-    v-for="message in messages"
-    :key="message.id + '-label'"
-    :x="(getActorX(message.fromActorId) + getActorX(message.toActorId)) / 2"
-    :y="(getYByLogicalIndex(message.fromLogicalY) + getYByLogicalIndex(message.toLogicalY)) / 2 - 8"
-    font-size="12"
-    fill="#333"
-    text-anchor="middle"
-    pointer-events="auto"
-    @dblclick="handleDoubleClick(message.id)"
-    >
-    {{ message.spec?.messageName || 'NewMessage' }}
-  </text>
-  </svg>
+        <marker
+          id="arrowhead"
+          markerWidth="10"
+          markerHeight="7"
+          refX="10"
+          refY="3.5"
+          orient="auto"
+          markerUnits="strokeWidth"
+        >
+          <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2" />
+        </marker>
+      </defs>
+      <line
+        v-for="message in messages"
+        :key="message.id"
+        :x1="getActorX(message.fromActorId)"
+        :y1="getYByLogicalIndex(message.fromLogicalY)"
+        :x2="getActorX(message.toActorId)"
+        :y2="getYByLogicalIndex(message.toLogicalY)"
+        stroke="#1976d2"
+        stroke-width="2"
+        marker-end="url(#arrowhead)"
+      />
+      <text
+        v-for="message in messages"
+        :key="message.id + '-label'"
+        :x="(getActorX(message.fromActorId) + getActorX(message.toActorId)) / 2"
+        :y="
+          (getYByLogicalIndex(message.fromLogicalY) + getYByLogicalIndex(message.toLogicalY)) / 2 -
+          8
+        "
+        font-size="12"
+        fill="#333"
+        text-anchor="middle"
+        pointer-events="auto"
+        @dblclick="handleDoubleClick(message.id)"
+      >
+        {{ message.spec?.messageName || 'NewMessage' }}
+      </text>
+    </svg>
   </div>
 
   <!--
@@ -85,12 +81,10 @@
       fill="blue"
     />
   -->
-
-
 </template>
 
 <script setup lang="ts">
-import type { Actor ,Message} from '@/stores/project'
+import type { Actor, Message } from '@/stores/project'
 import type { ComponentPublicInstance } from 'vue'
 import { ref, onMounted, onUnmounted } from 'vue'
 
@@ -103,10 +97,13 @@ type PointRef = {
 const pointRefs = ref<PointRef[]>([])
 
 const emit = defineEmits<{
-  (e: 'connect-message', from: { actorId: string; logicalY: number }, to: { actorId: string; logicalY: number }): void
+  (
+    e: 'connect-message',
+    from: { actorId: string; logicalY: number },
+    to: { actorId: string; logicalY: number },
+  ): void
   (e: 'double-click-message', messageId: string): void
 }>()
-
 
 const props = defineProps<{
   actors: Actor[]
@@ -138,7 +135,7 @@ function handleScroll(e: Event) {
 function startDrag(actorId: string, logicalY: number) {
   console.log('dragStart 등록됨:', actorId, logicalY)
   isDragging.value = true
-  dragStart.value = { actorId:actorId, logicalY : logicalY }
+  dragStart.value = { actorId: actorId, logicalY: logicalY }
   window.addEventListener('mousemove', onMouseMove)
   window.addEventListener('mouseup', onMouseUp)
 }
@@ -180,28 +177,31 @@ function onMouseUp() {
     console.log('연결 성공:', dragStart.value.actorId, '→', nearestPoint.actorId)
     console.log('연결 y좌표:', dragStart.value.logicalY, '→', nearestPoint.logicalY)
 
-    emit('connect-message',
+    emit(
+      'connect-message',
       {
         actorId: dragStart.value.actorId,
-        logicalY: dragStart.value.logicalY
+        logicalY: dragStart.value.logicalY,
       },
       {
         actorId: nearestPoint.actorId,
-        logicalY: nearestPoint.logicalY
-      }
+        logicalY: nearestPoint.logicalY,
+      },
     )
   } else {
     console.log('도착 포인트 없음, 연결 안함')
   }
 }
 
-
-function registerPoint(el: Element | ComponentPublicInstance | null, actorId: string, logicalY: number) {
+function registerPoint(
+  el: Element | ComponentPublicInstance | null,
+  actorId: string,
+  logicalY: number,
+) {
   if (el instanceof HTMLElement) {
     pointRefs.value.push({ actorId, logicalY, el })
   }
 }
-
 
 function getActorX(actorId: string): number {
   const index = actors.findIndex((a) => a.id === actorId)
@@ -210,17 +210,14 @@ function getActorX(actorId: string): number {
 }
 
 function getYByLogicalIndex(logicalY: number) {
-  return logicalY * (pointGap+10) - 15
+  return logicalY * (pointGap + 10) - 15
 }
 
 function handleDoubleClick(id: string) {
-  console.log('더블클릭한 메시지 ID:', id);
+  console.log('더블클릭한 메시지 ID:', id)
   emit('double-click-message', id)
 }
-
-
 </script>
-
 
 <style scoped>
 .canvas-wrapper {
@@ -233,7 +230,7 @@ function handleDoubleClick(id: string) {
   background-color: #f5f5f5;
   overflow-x: auto;
   overflow-y: auto;
-  height: 600px;  /* 스크롤 생기게 하기 위한 제한 */
+  height: 600px; /* 스크롤 생기게 하기 위한 제한 */
   min-height: 1000px;
   overflow: visible;
   position: relative; /* 꼭 필요함! */
@@ -261,7 +258,7 @@ function handleDoubleClick(id: string) {
   display: flex;
   flex-direction: column;
   /*gap: 16px;*/
-  gap : v-bind(pointGap + 'px');
+  gap: v-bind(pointGap + 'px');
 }
 
 .virtual-point {
@@ -288,6 +285,4 @@ function handleDoubleClick(id: string) {
   z-index: 10;
   padding: v-bind(padding + 'px');
 }
-
-
 </style>

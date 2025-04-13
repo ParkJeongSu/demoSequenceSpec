@@ -130,11 +130,13 @@ export const useProjectStore = defineStore('project', {
         return
       }
 
-      const pureData = JSON.parse(JSON.stringify({
-        groups: this.groups,
-        selectedGroupId: this.selectedGroupId,
-        selectedItemId: this.selectedItemId,
-      }))
+      const pureData = JSON.parse(
+        JSON.stringify({
+          groups: this.groups,
+          selectedGroupId: this.selectedGroupId,
+          selectedItemId: this.selectedItemId,
+        }),
+      )
 
       const result = await window.electronAPI.saveToFile(pureData)
 
@@ -164,7 +166,5 @@ export const useProjectStore = defineStore('project', {
         console.warn('[store] 불러오기 실패:', result.error)
       }
     },
-
-
   },
 })

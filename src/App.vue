@@ -17,7 +17,8 @@
       </v-btn>
     </v-app-bar>
     <!-- 메인 레이아웃 -->
-    <v-container fluid class="main-container pa-0  d-flex"><!-- fill-height -->
+    <v-container fluid class="main-container pa-0 d-flex"
+      ><!-- fill-height -->
       <!-- 좌측: 사이드바 -->
       <SidebarGroupManager />
 
@@ -50,7 +51,6 @@ const load = () => {
   height: calc(100vh - 64px); /* AppBar 높이 제외 */
   display: flex;
   position: relative;
-
 }
 
 .sidebar {

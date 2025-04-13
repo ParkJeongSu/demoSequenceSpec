@@ -1,6 +1,5 @@
 <template>
   <div class="d-flex align-center justify-space-between">
-
     <div>
       <v-btn icon @click="$emit('add-actor')">
         <v-icon>mdi-plus</v-icon>

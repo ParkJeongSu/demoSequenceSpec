@@ -1,6 +1,5 @@
 <template>
   <div v-if="sequence" class="pa-4 fill-height d-flex flex-column">
-
     <!-- 오브젝트 헤더 -->
     <ActorHeader :actors="sequence.actors" @add-actor="addActor" @remove-actor="removeActor" />
 
@@ -33,7 +32,7 @@ import { useProjectStore } from '@/stores/project'
 import ActorHeader from './ActorHeader.vue'
 import SequenceCanvas from './SequenceCanvas.vue'
 import MessageSpecEditor from './MessageSpecEditor.vue'
-import type {  Message,MessageSpec } from '@/stores/project'
+import type { Message, MessageSpec } from '@/stores/project'
 
 const store = useProjectStore()
 const sequence = computed(() => store.currentSequence)
@@ -61,7 +60,7 @@ const removeActor = () => {
 // 메시지 연결
 const connectMessage = (
   from: { actorId: string; logicalY: number },
-  to: { actorId: string; logicalY: number }
+  to: { actorId: string; logicalY: number },
 ) => {
   if (sequence.value) {
     sequence.value.messages.push({
