@@ -82,6 +82,7 @@ const connectMessage = (
       spec: {
         messageName: '',
         description: '',
+        format: 'xml',
         fields: [],
       },
     })

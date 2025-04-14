@@ -6,11 +6,13 @@ export interface MessageField {
   name: string
   type: string
   desc: string
+  fields?: MessageField[] // ← 재귀로 중첩 가능하게
 }
 
 export interface MessageSpec {
   messageName: string
   description: string
+  format: 'json' | 'xml' | 'text' // ← 포맷 추가
   fields: MessageField[]
 }
 

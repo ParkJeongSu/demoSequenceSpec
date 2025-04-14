@@ -1,36 +1,46 @@
 <template>
-  <v-dialog v-model="dialog" persistent max-width="600px">
+  <v-dialog v-model="dialog" persistent max-width="1000px">
     <v-card>
       <v-card-title>메시지 스펙 편집</v-card-title>
 
       <v-card-text>
-        <v-text-field label="메시지 이름" v-model="form.messageName" required />
+        <v-row>
+          <v-col cols="6">
+            <v-text-field label="메시지 이름" v-model="form.messageName" required />
         <v-textarea label="설명" v-model="form.description" rows="3" />
 
         <v-divider class="my-4" />
 
         <div>
           <v-subheader>필드 목록</v-subheader>
-          <v-row v-for="(field, index) in form.fields" :key="index" class="mb-2">
-            <v-col cols="4">
-              <v-text-field v-model="field.name" label="필드명" dense />
-            </v-col>
-            <v-col cols="4">
-              <v-text-field v-model="field.type" label="타입" dense />
-            </v-col>
-            <v-col cols="4" class="d-flex align-center">
-              <v-text-field v-model="field.desc" label="설명" dense />
-              <v-btn icon @click="removeField(index)">
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
-            </v-col>
-          </v-row>
-
+          <MessageFieldEditor
+            v-for="(field, i) in form.fields"
+            :key="i"
+            :field="field"
+            @add-child="addChildField"
+            @remove="removeField"
+          />
           <v-btn @click="addField" variant="outlined" size="small">
             <v-icon left>mdi-plus</v-icon>
             필드 추가
           </v-btn>
         </div>
+          </v-col>
+          <v-col cols="6">
+              <v-select
+                label="포맷"
+                v-model="form.format"
+                :items="['json', 'xml', 'text']"
+              />
+              <v-textarea
+                label="스펙 미리보기"
+                :model-value="generatedPreview"
+                readonly
+                rows="12"
+              />
+            </v-col>
+        </v-row>
+
       </v-card-text>
 
       <v-card-actions>
@@ -43,10 +53,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch ,computed } from 'vue'
 import type { Ref } from 'vue'
 import type { MessageField } from '@/stores/project'
 import type { MessageSpec } from '@/stores/project'
+import MessageFieldEditor from './MessageFieldEditor.vue'
 
 const props = defineProps<{
   message: MessageSpec
@@ -69,13 +80,60 @@ const addField = () => {
   form.value?.fields.push(newField)
 }
 
-const removeField = (index: number) => {
-  form.value?.fields.splice(index, 1)
-}
 
 // 저장 처리
 const save = () => {
   emit('update-spec', form.value)
   dialog.value = false
 }
+
+const generatedPreview = computed(() => {
+  if (form.value.format === 'json') {
+    return JSON.stringify(formatAsJson(form.value.fields), null, 2)
+  } else if (form.value.format === 'xml') {
+    return formatAsXml(form.value.fields)
+  } else {
+    return '미리보기가 지원되지 않는 포맷입니다.'
+  }
+})
+
+function formatAsJson(fields: MessageField[]): any {
+  const obj: any = {}
+  for (const f of fields) {
+    obj[f.name] = f.fields?.length
+      ? formatAsJson(f.fields)
+      : f.type
+  }
+  return obj
+}
+
+function formatAsXml(fields: MessageField[], indent = ''): string {
+  return fields.map(f => {
+    if (f.fields?.length) {
+      return `${indent}<${f.name}>\n${formatAsXml(f.fields, indent + '  ')}\n${indent}</${f.name}>`
+    } else {
+      return `${indent}<${f.name}>${f.type}</${f.name}>`
+    }
+  }).join('\n')
+}
+
+function addChildField(parent: MessageField) {
+  if (!parent.fields) parent.fields = []
+  parent.fields.push({ name: '', type: '', desc: '', fields: [] })
+}
+
+function removeField(target: MessageField) {
+  const recursiveRemove = (arr: MessageField[]) => {
+    const index = arr.indexOf(target)
+    if (index !== -1) return arr.splice(index, 1)
+
+    for (const f of arr) {
+      if (f.fields) recursiveRemove(f.fields)
+    }
+  }
+
+  recursiveRemove(form.value.fields)
+}
+
+
 </script>
