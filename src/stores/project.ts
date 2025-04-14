@@ -28,9 +28,20 @@ export interface Actor {
   name: string
 }
 
+export interface MemoBlockData {
+  id: string
+  x: number
+  y: number
+  width: number
+  height: number
+  text: string
+  saved: boolean
+}
+
 export interface Sequence {
   actors: Actor[]
   messages: Message[]
+  memoBlocks: MemoBlockData[]
 }
 
 export interface Item {
@@ -98,6 +109,7 @@ export const useProjectStore = defineStore('project', {
         sequence: {
           actors: [],
           messages: [],
+          memoBlocks: [],
         },
       }
       group.items.push(newItem)

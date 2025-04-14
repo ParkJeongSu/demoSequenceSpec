@@ -13,6 +13,13 @@
       @double-click-message="editMessage"
     />
     <!-- -->
+    <MemoBlock
+      v-for="memo in sequence.memoBlocks"
+      :key="memo.id"
+      :memo="memo"
+      @update="updateMemo"
+      @delete="deleteMemo"
+    />
 
     <!-- 메시지 스펙 팝업 -->
     <MessageSpecEditor
@@ -21,6 +28,8 @@
       @update-spec="updateMessage"
       @close-editor="editingMessage = null"
     />
+
+
   </div>
 
   <div v-else class="pa-4 text-grey">항목을 선택해주세요.</div>
@@ -32,7 +41,8 @@ import { useProjectStore } from '@/stores/project'
 import ActorHeader from './ActorHeader.vue'
 import SequenceCanvas from './SequenceCanvas.vue'
 import MessageSpecEditor from './MessageSpecEditor.vue'
-import type { Message, MessageSpec } from '@/stores/project'
+import MemoBlock from './MemoBlock.vue'
+import type { Message, MessageSpec, MemoBlockData } from '@/stores/project'
 
 const store = useProjectStore()
 const sequence = computed(() => store.currentSequence)
@@ -98,4 +108,24 @@ const updateMessage = (updatedSpec: MessageSpec) => {
 
   editingMessage.value = null
 }
+
+const updateMemo = (updated: MemoBlockData) => {
+  const seq = store.currentSequence
+  if (!seq) return
+
+  const index = seq.memoBlocks.findIndex(m => m.id === updated.id)
+  if (index >= 0) {
+    seq.memoBlocks[index] = { ...updated }
+    store.markChanged()
+  }
+}
+
+const deleteMemo = (id: string) => {
+  const seq = store.currentSequence
+  if (!seq) return
+
+  seq.memoBlocks = seq.memoBlocks.filter(m => m.id !== id)
+  store.markChanged()
+}
+
 </script>
