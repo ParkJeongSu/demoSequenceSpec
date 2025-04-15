@@ -1,9 +1,22 @@
 <template>
+  <div class="canvas-header">
+    <div
+      class="actor-label"
+      v-for="actor in actors"
+      :key="actor.id"
+      :style="{ width: actorWidth + 20 + 'px' }"
+    >
+      {{ actor.name }}
+    </div>
+  </div>
   <div class="canvas-wrapper" @scroll="handleScroll" ref="scrollRef">
     <!-- Actor columns -->
-    <div v-for="actor in actors" :key="actor.id" class="actor-column">
-      <div class="actor-label">{{ actor.name }}</div>
-
+    <div
+      v-for="actor in actors"
+      :key="actor.id"
+      class="actor-column"
+      :style="{ height: virtualPointCount * pointGap + 'px' }"
+    >
       <!-- 가상 포인트들 -->
       <div class="point-container">
         <div
@@ -15,7 +28,7 @@
         />
       </div>
     </div>
-    <svg class="svg-message-layer">
+    <svg class="svg-message-layer" :style="{ height: virtualPointCount * pointGap + 'px' }">
       <defs>
         <marker
           id="arrowhead"
@@ -58,29 +71,6 @@
       </text>
     </svg>
   </div>
-
-  <!--
-          <line
-      :x1="getActorX('e174263e-2c39-4371-b4fd-2dfc0ac7439d')"
-      :y1="getYByLogicalIndex(9)"
-      :x2="getActorX('1b45f1a2-82c4-4cbd-b7eb-757f75955332')"
-      :y2="getYByLogicalIndex(9)"
-      stroke="red"
-      stroke-width="2"
-    />
-    <circle
-      :cx="getActorX('e174263e-2c39-4371-b4fd-2dfc0ac7439d')"
-      :cy="getYByLogicalIndex(9)"
-      r="4"
-      fill="green"
-    />
-    <circle
-      :cx="getActorX('1b45f1a2-82c4-4cbd-b7eb-757f75955332')"
-      :cy="getYByLogicalIndex(9)"
-      r="4"
-      fill="blue"
-    />
-  -->
 </template>
 
 <script setup lang="ts">
@@ -231,10 +221,9 @@ function handleDoubleClick(id: string) {
   overflow-x: auto;
   overflow-y: auto;
   height: 600px; /* 스크롤 생기게 하기 위한 제한 */
-  min-height: 1000px;
-  overflow: visible;
   position: relative; /* 꼭 필요함! */
   border: 2px dashed red; /* 테스트용 */
+  padding-top: 32px; /* 헤더가 덮이지 않도록 위 공간 확보 */
 }
 
 .actor-column {
@@ -252,6 +241,24 @@ function handleDoubleClick(id: string) {
   font-weight: bold;
   margin-bottom: 8px;
   text-align: center;
+
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 5;
+  padding: 4px;
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+}
+
+.canvas-header {
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #fff;
+  border-bottom: 1px solid #ccc;
 }
 
 .point-container {

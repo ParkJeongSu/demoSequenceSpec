@@ -1,7 +1,14 @@
 <template>
-  <v-list dense nav>
-    <v-list-subheader>그룹 목록</v-list-subheader>
-
+  <v-list class="sidebar" dense nav>
+    <v-list-subheader>group List</v-list-subheader>
+    <div class="d-flex align-center justify-space-between">
+      <div>
+        <!-- 그룹 추가 버튼 -->
+        <v-btn block variant="elevated" class="mt-2 add-group-btn" @click="addGroup">
+          <v-icon left>mdi-plus</v-icon> 그룹 추가
+        </v-btn>
+      </div>
+    </div>
     <div v-for="group in store.groups" :key="group.id">
       <!-- 그룹 항목 -->
       <v-list-item :active="expandedGroupIds.includes(group.id)" @click="toggleGroup(group.id)">
@@ -25,11 +32,6 @@
         </v-btn>
       </div>
     </div>
-
-    <!-- 그룹 추가 버튼 -->
-    <v-btn block variant="elevated" class="mt-2" @click="addGroup">
-      <v-icon left>mdi-plus</v-icon> 그룹 추가
-    </v-btn>
   </v-list>
 </template>
 
@@ -85,3 +87,14 @@ function addItem(groupId: string) {
   store.markChanged()
 }
 </script>
+
+<style scoped>
+.sidebar {
+  padding-top: 64px;
+  overflow-x: hidden;
+}
+
+.add-group-btn {
+  width: 100%;
+}
+</style>
