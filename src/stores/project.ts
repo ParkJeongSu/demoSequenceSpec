@@ -93,7 +93,12 @@ export const useProjectStore = defineStore('project', {
       this.selectedItemId = ''
       this.isSaved = false
     },
-
+    selectGroup(id: string) {
+      this.selectedGroupId = ''
+      nextTick(() => {
+        this.selectedGroupId = id
+      })
+    },
     selectItem(id: string) {
       this.selectedItemId = ''
       nextTick(() => {
