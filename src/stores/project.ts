@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { nanoid } from 'nanoid'
+import { nextTick } from 'vue'
 
 // 데이터 타입 정의
 export interface MessageField {
@@ -91,6 +92,13 @@ export const useProjectStore = defineStore('project', {
       this.selectedGroupId = newGroup.id
       this.selectedItemId = ''
       this.isSaved = false
+    },
+
+    selectItem(id: string) {
+      this.selectedItemId = ''
+      nextTick(() => {
+        this.selectedItemId = id
+      })
     },
 
     removeGroup(groupId: string) {

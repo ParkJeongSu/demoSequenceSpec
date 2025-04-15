@@ -1,20 +1,20 @@
 <template>
   <div v-if="sequence" class="pa-4 fill-height d-flex flex-column">
     <!-- 오브젝트 헤더 -->
-    <ActorHeader :actors="sequence.actors" @add-actor="addActor" @remove-actor="removeActor" />
+    <ActorHeader :actors="actors" @add-actor="addActor" @remove-actor="removeActor" />
 
     <v-divider class="my-2" />
 
     <!-- 시퀀스 캔버스 (메시지 연결 영역) -->
     <SequenceCanvas
-      :actors="sequence.actors"
-      :messages="sequence.messages"
+      :actors="actors"
+      :messages="messages"
       @connect-message="connectMessage"
       @double-click-message="editMessage"
     />
     <!-- -->
     <MemoBlock
-      v-for="memo in sequence.memoBlocks"
+      v-for="memo in memoBlocks"
       :key="memo.id"
       :memo="memo"
       @update="updateMemo"
@@ -28,15 +28,13 @@
       @update-spec="updateMessage"
       @close-editor="editingMessage = null"
     />
-
-
   </div>
 
   <div v-else class="pa-4 text-grey">항목을 선택해주세요.</div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useProjectStore } from '@/stores/project'
 import ActorHeader from './ActorHeader.vue'
 import SequenceCanvas from './SequenceCanvas.vue'
@@ -46,6 +44,18 @@ import type { Message, MessageSpec, MemoBlockData } from '@/stores/project'
 
 const store = useProjectStore()
 const sequence = computed(() => store.currentSequence)
+const actors = computed(() => store.currentSequence?.actors ?? [])
+const messages = computed(() => store.currentSequence?.messages || [])
+const memoBlocks = computed(() => store.currentSequence?.memoBlocks || [])
+
+watch(
+  () => store.currentSequence,
+  (val) => {
+    console.log('[watch] 시퀀스 바뀜:', val)
+  },
+)
+
+console.log(sequence.value?.messages)
 
 const editingMessage = ref<Message | null>(null)
 // Actor 추가
@@ -114,7 +124,7 @@ const updateMemo = (updated: MemoBlockData) => {
   const seq = store.currentSequence
   if (!seq) return
 
-  const index = seq.memoBlocks.findIndex(m => m.id === updated.id)
+  const index = seq.memoBlocks.findIndex((m) => m.id === updated.id)
   if (index >= 0) {
     seq.memoBlocks[index] = { ...updated }
     store.markChanged()
@@ -125,8 +135,7 @@ const deleteMemo = (id: string) => {
   const seq = store.currentSequence
   if (!seq) return
 
-  seq.memoBlocks = seq.memoBlocks.filter(m => m.id !== id)
+  seq.memoBlocks = seq.memoBlocks.filter((m) => m.id !== id)
   store.markChanged()
 }
-
 </script>

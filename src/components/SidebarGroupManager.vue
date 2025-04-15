@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick } from 'vue'
 import { useProjectStore } from '@/stores/project'
 import GroupList from './GroupList.vue'
 import ItemList from './ItemList.vue'
@@ -50,7 +50,7 @@ const addGroup = () => store.addGroup()
 const deleteGroup = (groupId: string) => store.removeGroup(groupId)
 
 const selectItem = (itemId: string) => {
-  store.selectedItemId = itemId
+  store.selectItem(itemId)
 }
 
 const addItem = () => {

@@ -1,9 +1,5 @@
 <template>
-  <div
-    class="memo-block"
-    :style="blockStyle"
-    @mousedown.self="startDrag"
-  >
+  <div class="memo-block" :style="blockStyle" @mousedown.self="startDrag">
     <!-- 오른쪽 상단 버튼 -->
     <div class="memo-toolbar">
       <v-btn size="x-small" variant="text" @click="save">Save</v-btn>
@@ -18,11 +14,7 @@
       @blur="save"
       @keydown.esc.prevent="remove"
     />
-    <div
-      v-else
-      class="memo-content"
-      @dblclick="enterEdit"
-    >
+    <div v-else class="memo-content" @dblclick="enterEdit">
       {{ memo.text }}
     </div>
 
@@ -32,9 +24,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch,computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import type { MemoBlockData } from '@/stores/project'
-
 
 const dragging = ref(false)
 const offset = ref({ x: 0, y: 0 })
@@ -42,7 +33,6 @@ const offset = ref({ x: 0, y: 0 })
 const resizing = ref(false)
 const resizeStart = ref({ x: 0, y: 0 })
 const sizeStart = ref({ width: 0, height: 0 })
-
 
 const props = defineProps<{
   memo: MemoBlockData
@@ -92,7 +82,7 @@ function startDrag(e: MouseEvent) {
   // 마우스 클릭 지점과 메모 좌상단 차이 기록
   offset.value = {
     x: e.clientX - props.memo.x,
-    y: e.clientY - props.memo.y
+    y: e.clientY - props.memo.y,
   }
 
   window.addEventListener('mousemove', onMouseMove)
@@ -118,7 +108,7 @@ function onMouseMove(e: MouseEvent) {
   emit('update', {
     ...props.memo,
     x: newX,
-    y: newY
+    y: newY,
   })
 }
 
@@ -137,7 +127,7 @@ function onResizeMove(e: MouseEvent) {
   emit('update', {
     ...props.memo,
     width: Math.max(100, sizeStart.value.width + dx),
-    height: Math.max(60, sizeStart.value.height + dy)
+    height: Math.max(60, sizeStart.value.height + dy),
   })
 }
 function onResizeEnd() {
@@ -145,10 +135,6 @@ function onResizeEnd() {
   window.removeEventListener('mousemove', onResizeMove)
   window.removeEventListener('mouseup', onResizeEnd)
 }
-
-
-
-
 
 // 드래그/리사이즈 이벤트는 다음 단계에서 추가
 </script>
@@ -159,7 +145,7 @@ function onResizeEnd() {
   background-color: #fffde7;
   border: 1px solid #fbc02d;
   border-radius: 8px;
-  box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
   padding: 8px;
   box-sizing: border-box;
   z-index: 20;

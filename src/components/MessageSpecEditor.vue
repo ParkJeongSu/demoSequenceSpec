@@ -7,40 +7,30 @@
         <v-row>
           <v-col cols="6">
             <v-text-field label="메시지 이름" v-model="form.messageName" required />
-        <v-textarea label="설명" v-model="form.description" rows="3" />
+            <v-textarea label="설명" v-model="form.description" rows="3" />
 
-        <v-divider class="my-4" />
+            <v-divider class="my-4" />
 
-        <div>
-          <v-subheader>필드 목록</v-subheader>
-          <MessageFieldEditor
-            v-for="(field, i) in form.fields"
-            :key="i"
-            :field="field"
-            @add-child="addChildField"
-            @remove="removeField"
-          />
-          <v-btn @click="addField" variant="outlined" size="small">
-            <v-icon left>mdi-plus</v-icon>
-            필드 추가
-          </v-btn>
-        </div>
+            <div>
+              <v-subheader>필드 목록</v-subheader>
+              <MessageFieldEditor
+                v-for="(field, i) in form.fields"
+                :key="i"
+                :field="field"
+                @add-child="addChildField"
+                @remove="removeField"
+              />
+              <v-btn @click="addField" variant="outlined" size="small">
+                <v-icon left>mdi-plus</v-icon>
+                필드 추가
+              </v-btn>
+            </div>
           </v-col>
           <v-col cols="6">
-              <v-select
-                label="포맷"
-                v-model="form.format"
-                :items="['json', 'xml', 'text']"
-              />
-              <v-textarea
-                label="스펙 미리보기"
-                :model-value="generatedPreview"
-                readonly
-                rows="12"
-              />
-            </v-col>
+            <v-select label="포맷" v-model="form.format" :items="['json', 'xml', 'text']" />
+            <v-textarea label="스펙 미리보기" :model-value="generatedPreview" readonly rows="12" />
+          </v-col>
         </v-row>
-
       </v-card-text>
 
       <v-card-actions>
@@ -53,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch ,computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import type { Ref } from 'vue'
 import type { MessageField } from '@/stores/project'
 import type { MessageSpec } from '@/stores/project'
@@ -80,7 +70,6 @@ const addField = () => {
   form.value?.fields.push(newField)
 }
 
-
 // 저장 처리
 const save = () => {
   emit('update-spec', form.value)
@@ -100,21 +89,21 @@ const generatedPreview = computed(() => {
 function formatAsJson(fields: MessageField[]): any {
   const obj: any = {}
   for (const f of fields) {
-    obj[f.name] = f.fields?.length
-      ? formatAsJson(f.fields)
-      : f.type
+    obj[f.name] = f.fields?.length ? formatAsJson(f.fields) : f.type
   }
   return obj
 }
 
 function formatAsXml(fields: MessageField[], indent = ''): string {
-  return fields.map(f => {
-    if (f.fields?.length) {
-      return `${indent}<${f.name}>\n${formatAsXml(f.fields, indent + '  ')}\n${indent}</${f.name}>`
-    } else {
-      return `${indent}<${f.name}>${f.type}</${f.name}>`
-    }
-  }).join('\n')
+  return fields
+    .map((f) => {
+      if (f.fields?.length) {
+        return `${indent}<${f.name}>\n${formatAsXml(f.fields, indent + '  ')}\n${indent}</${f.name}>`
+      } else {
+        return `${indent}<${f.name}>${f.type}</${f.name}>`
+      }
+    })
+    .join('\n')
 }
 
 function addChildField(parent: MessageField) {
@@ -134,6 +123,4 @@ function removeField(target: MessageField) {
 
   recursiveRemove(form.value.fields)
 }
-
-
 </script>

@@ -8,8 +8,9 @@
         <v-icon>mdi-minus</v-icon>
       </v-btn>
       <v-btn icon @click="addMemoBlock">
-      <v-icon>mdi-note-plus</v-icon> <!-- 메모 추가 아이콘 -->
-    </v-btn>
+        <v-icon>mdi-note-plus</v-icon>
+        <!-- 메모 추가 아이콘 -->
+      </v-btn>
     </div>
   </div>
 </template>
