@@ -13,7 +13,32 @@
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
     "electron": "electron electron/main.js",
-    "dev:electron": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron electron/main.js\""
+    "dev:electron": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron electron/main.js\"",
+    "build:frontend": "vite build",
+    "build:electron": "electron-builder"
+    
+  },
+  "build": {
+    "appId": "com.example.sequencespec",
+    "productName": "SequenceSpecTool",
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "files": [
+      "dist-frontend/**/*",
+      "electron/**/*",
+      "preload.js"
+    ],
+    "extraResources": [
+      {
+        "from": "project-data.json",
+        "to": "project-data.json"
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    }
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
@@ -31,6 +56,7 @@
     "@vue/tsconfig": "^0.7.0",
     "concurrently": "^9.1.2",
     "electron": "^35.1.4",
+    "electron-builder": "^26.0.12",
     "eslint": "^9.22.0",
     "eslint-plugin-vue": "~10.0.0",
     "jiti": "^2.4.2",
