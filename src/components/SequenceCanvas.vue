@@ -6,7 +6,23 @@
       :key="actor.id"
       :style="{ width: actorWidth + 20 + 'px' }"
     >
-      {{ actor.name }}
+      <!-- 편집 중이면 입력창 -->
+      <v-text-field
+        v-if="editingActorId === actor.id"
+        v-model="editingActorName"
+        dense
+        hide-details
+        variant="solo"
+        autofocus
+        @blur="onBlurActor(actor)"
+        @keydown.enter="finishActorEdit(actor)"
+        @keydown.esc="cancelActorEdit"
+      />
+
+      <!-- 편집 중이 아니면 텍스트 -->
+      <span v-else @dblclick="startActorEdit(actor)">
+        {{ actor.name }}
+      </span>
     </div>
   </div>
   <div class="canvas-wrapper" @scroll="handleScroll" ref="scrollRef">
@@ -78,13 +94,20 @@ import type { Actor, Message } from '@/stores/project'
 import type { ComponentPublicInstance } from 'vue'
 import { ref, onMounted, onUnmounted } from 'vue'
 
+import { useProjectStore } from '@/stores/project'
+
 type PointRef = {
   actorId: string
   logicalY: number
   el: HTMLElement
 }
 
+const store = useProjectStore()
+
 const pointRefs = ref<PointRef[]>([])
+const editingActorId = ref<string | null>(null)
+const editingActorName = ref('')
+let skipBlur = false
 
 const emit = defineEmits<{
   (
@@ -206,6 +229,33 @@ function getYByLogicalIndex(logicalY: number) {
 function handleDoubleClick(id: string) {
   console.log('더블클릭한 메시지 ID:', id)
   emit('double-click-message', id)
+}
+
+function startActorEdit(actor: Actor) {
+  editingActorId.value = actor.id
+  editingActorName.value = actor.name
+}
+
+function finishActorEdit(actor: Actor) {
+  skipBlur = true
+  store.updateActorName(actor.id, editingActorName.value)
+  editingActorId.value = null
+  editingActorName.value = ''
+  store.markChanged?.() // 선택사항
+}
+
+function onBlurActor(actor: Actor) {
+  if (skipBlur) {
+    skipBlur = false
+    return
+  }
+  finishActorEdit(actor)
+}
+
+function cancelActorEdit() {
+  skipBlur = true
+  editingActorId.value = null
+  editingActorName.value = ''
 }
 </script>
 

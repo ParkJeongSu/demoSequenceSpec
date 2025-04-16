@@ -16,6 +16,7 @@
     "dev:electron": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron electron/main.js\""
   },
   "dependencies": {
+    "@mdi/font": "^7.4.47",
     "nanoid": "^5.1.5",
     "pinia": "^3.0.1",
     "vue": "^3.5.13",

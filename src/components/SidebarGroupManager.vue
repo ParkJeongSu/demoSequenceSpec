@@ -12,7 +12,30 @@
     <div v-for="group in store.groups" :key="group.id">
       <!-- 그룹 항목 -->
       <v-list-item :active="expandedGroupIds.includes(group.id)" @click="toggleGroup(group.id)">
-        <v-list-item-title>{{ group.name }}</v-list-item-title>
+        <template #title>
+          <!-- 편집 중이면 입력창 -->
+          <v-text-field
+            v-if="editingGroupId === group.id"
+            v-model="editingName"
+            dense
+            hide-details
+            variant="solo"
+            autofocus
+            @blur="onBlur(group)"
+            @keydown.enter="finishEdit(group)"
+            @keydown.esc="cancelEdit"
+          />
+
+          <!-- 편집 중이 아니면 텍스트 -->
+          <span v-else @dblclick="startEdit(group)">
+            {{ group.name }}
+          </span>
+        </template>
+        <template #append>
+          <v-btn icon size="x-small" @click.stop="deleteGroup(group.id)">
+            <v-icon size="small">mdi-close</v-icon>
+          </v-btn>
+        </template>
       </v-list-item>
 
       <!-- 하위 항목 (펼쳐졌을 때만 보임) -->
@@ -23,7 +46,30 @@
           :active="store.selectedItemId === item.id"
           @click="selectItem(group.id, item.id)"
         >
-          <v-list-item-title>{{ item.title }}</v-list-item-title>
+          <template #title>
+            <!-- 편집 중이면 입력창 -->
+            <v-text-field
+              v-if="editingItemId === item.id"
+              v-model="editingItemName"
+              dense
+              hide-details
+              variant="solo"
+              autofocus
+              @blur="onBlur(group, item)"
+              @keydown.enter="finishItemEdit(group, item)"
+              @keydown.esc="cancelItemEdit"
+            />
+
+            <!-- 편집 중이 아니면 텍스트 -->
+            <span v-else @dblclick="startItemEdit(item)">
+              {{ item.title }}
+            </span>
+          </template>
+          <template #append>
+            <v-btn icon size="x-small" @click.stop="deleteItem(item.id)">
+              <v-icon size="small">mdi-close</v-icon>
+            </v-btn>
+          </template>
         </v-list-item>
 
         <!-- 아이템 추가 버튼 -->
@@ -50,6 +96,14 @@ const selectedGroup = computed(() => store.selectedGroup)
 
 const expandedGroupIds = ref<string[]>([]) // 현재 펼쳐진 그룹 ID 목록
 
+const editingGroupId = ref<string | null>(null)
+const editingName = ref('')
+
+const editingItemId = ref<string | null>(null)
+const editingItemName = ref('')
+
+let skipBlur = false
+
 // 이벤트 핸들러
 const selectGroup = (groupId: string) => {
   store.selectedGroupId = groupId
@@ -57,7 +111,7 @@ const selectGroup = (groupId: string) => {
 }
 
 const addGroup = () => store.addGroup()
-const deleteGroup = (groupId: string) => store.removeGroup(groupId)
+const deleteGroup = (groupId: string) => store.deleteGroup(groupId)
 
 const selectItem = (groupId: string, itemId: string) => {
   store.selectGroup(groupId)
@@ -86,6 +140,60 @@ function addItem(groupId: string) {
   store.addItemToGroup(groupId)
   store.markChanged()
 }
+
+function startEdit(group: Group) {
+  editingGroupId.value = group.id
+  editingName.value = group.name
+}
+
+function finishEdit(group: Group) {
+  skipBlur = true
+  store.updateGroupName(group.id, editingName.value)
+  editingGroupId.value = null
+  editingName.value = ''
+  store.markChanged?.() // 선택사항
+}
+
+function onBlur(group: Group) {
+  if (skipBlur) {
+    skipBlur = false
+    return
+  }
+  finishEdit(group)
+}
+
+function cancelEdit() {
+  skipBlur = true
+  editingGroupId.value = null
+  editingName.value = ''
+}
+
+function startItemEdit(Item: Item) {
+  editingItemId.value = Item.id
+  editingItemName.value = Item.title
+}
+
+function finishItemEdit(group: Group, Item: Item) {
+  skipBlur = true
+  store.updateItemName(group.id, Item.id, editingItemName.value)
+  editingItemId.value = null
+  editingItemName.value = ''
+  store.markChanged?.() // 선택사항
+}
+
+function onBlurItem(group: Group, Item: Item) {
+  if (skipBlur) {
+    skipBlur = false
+    return
+  }
+  finishItemEdit(group, Item)
+}
+
+function cancelItemEdit() {
+  skipBlur = true
+  editingItemId.value = null
+  editingItemName.value = ''
+}
 </script>
 
 <style scoped>
@@ -96,5 +204,9 @@ function addItem(groupId: string) {
 
 .add-group-btn {
   width: 100%;
+}
+
+span {
+  cursor: pointer;
 }
 </style>

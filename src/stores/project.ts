@@ -106,6 +106,17 @@ export const useProjectStore = defineStore('project', {
       })
     },
 
+    deleteGroup(id: string) {
+      const isCurrentGroup = this.selectedGroupId === id
+
+      this.groups = this.groups.filter((g) => g.id !== id)
+
+      if (isCurrentGroup) {
+        this.selectedGroupId = ''
+        this.selectedItemId = ''
+      }
+    },
+
     removeGroup(groupId: string) {
       this.groups = this.groups.filter((g) => g.id !== groupId)
       if (this.selectedGroupId === groupId) {
@@ -149,6 +160,29 @@ export const useProjectStore = defineStore('project', {
 
     markChanged() {
       this.isSaved = false
+    },
+
+    updateGroupName(groupId: string, newName: string) {
+      const group = this.groups.find((g) => g.id === groupId)
+      if (group) {
+        group.name = newName.trim()
+      }
+    },
+
+    updateItemName(groupId: string, itemId: string, newName: string) {
+      const group = this.groups.find((g) => g.id === groupId)
+      if (group) {
+        const item = group.items.find((i) => i.id === itemId)
+        if (item) {
+          item.title = newName.trim()
+        }
+      }
+    },
+    updateActorName(actorId: string, newName: string) {
+      const actor = this.currentSequence?.actors.find((a) => a.id === actorId)
+      if (actor) {
+        actor.name = newName.trim()
+      }
     },
 
     async saveToFile() {
