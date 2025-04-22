@@ -5,7 +5,7 @@
       <div>
         <!-- 그룹 추가 버튼 -->
         <v-btn block variant="elevated" class="mt-2 add-group-btn" @click="addGroup">
-          <v-icon left>mdi-plus</v-icon> 그룹 추가
+          <v-icon left>mdi-plus</v-icon>Add Group
         </v-btn>
       </div>
     </div>
@@ -55,7 +55,7 @@
               hide-details
               variant="solo"
               autofocus
-              @blur="onBlur(group, item)"
+              @blur="onBlurItem(group, item)"
               @keydown.enter="finishItemEdit(group, item)"
               @keydown.esc="cancelItemEdit"
             />
@@ -84,6 +84,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue'
 import { useProjectStore } from '@/stores/project'
+import type { Group, Item } from '@/stores/project'
 import GroupList from './GroupList.vue'
 import ItemList from './ItemList.vue'
 

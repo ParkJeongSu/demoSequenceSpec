@@ -17,7 +17,7 @@
 
   <v-btn block class="mt-2" @click="$emit('add-item')">
     <v-icon left>mdi-plus</v-icon>
-    항목 추가
+    Add Item
   </v-btn>
 </template>
 

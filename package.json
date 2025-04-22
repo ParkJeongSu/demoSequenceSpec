@@ -16,7 +16,8 @@
     "dev:electron": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron electron/main.js\"",
     "clean": "rimraf dist",
     "build:frontend": "vite build",
-    "build:electron": "electron-builder"
+    "build:electron": "electron-builder",
+    "build:full": "npm run clean && npm run build:frontend && npm run build:electron"
   },
   "build": {
     "appId": "com.example.sequencespec",

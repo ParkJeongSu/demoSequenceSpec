@@ -17,7 +17,7 @@
 
   <v-btn block class="mt-2" @click="$emit('add-group')">
     <v-icon left>mdi-plus</v-icon>
-    그룹 추가
+    Add Group
   </v-btn>
 </template>
 

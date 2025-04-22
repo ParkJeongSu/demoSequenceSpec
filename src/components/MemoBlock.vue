@@ -170,12 +170,14 @@ function onResizeEnd() {
   background: transparent;
   font-family: inherit;
   font-size: 14px;
+  padding-top: 15px;
 }
 
 .memo-content {
   white-space: pre-wrap;
   font-size: 14px;
   text-align: left;
+  padding-top: 15px;
 }
 
 .resize-handle {

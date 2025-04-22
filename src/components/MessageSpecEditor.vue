@@ -1,18 +1,18 @@
 <template>
   <v-dialog v-model="dialog" persistent max-width="1000px">
     <v-card>
-      <v-card-title>메시지 스펙 편집</v-card-title>
+      <v-card-title>Modify Message Spec</v-card-title>
 
       <v-card-text>
         <v-row>
           <v-col cols="6">
-            <v-text-field label="메시지 이름" v-model="form.messageName" required />
-            <v-textarea label="설명" v-model="form.description" rows="3" />
+            <v-text-field label="Message Name" v-model="form.messageName" required />
+            <v-textarea label="Description" v-model="form.description" rows="3" />
 
             <v-divider class="my-4" />
 
             <div>
-              <v-subheader>필드 목록</v-subheader>
+              <v-subheader>FieldList</v-subheader>
               <MessageFieldEditor
                 v-for="(field, i) in form.fields"
                 :key="i"
@@ -22,21 +22,22 @@
               />
               <v-btn @click="addField" variant="outlined" size="small">
                 <v-icon left>mdi-plus</v-icon>
-                필드 추가
+                Add Field
               </v-btn>
             </div>
           </v-col>
           <v-col cols="6">
-            <v-select label="포맷" v-model="form.format" :items="['json', 'xml', 'text']" />
-            <v-textarea label="스펙 미리보기" :model-value="generatedPreview" readonly rows="12" />
+            <v-select label="Format" v-model="form.format" :items="['json', 'xml', 'text']" />
+            <v-textarea label="Preview Spec" :model-value="generatedPreview" readonly rows="12" />
           </v-col>
         </v-row>
       </v-card-text>
 
       <v-card-actions>
         <v-spacer />
-        <v-btn text @click="$emit('close-editor')">취소</v-btn>
-        <v-btn color="primary" @click="save">저장</v-btn>
+        <v-btn text @click="$emit('delete',props.messageId)">remove Message</v-btn>
+        <v-btn text @click="$emit('close-editor')">Cancel</v-btn>
+        <v-btn color="primary" @click="save">Save</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -51,11 +52,13 @@ import MessageFieldEditor from './MessageFieldEditor.vue'
 
 const props = defineProps<{
   message: MessageSpec
+  messageId:string
 }>()
 
 const emit = defineEmits<{
   (e: 'update-spec', spec: MessageSpec): void
   (e: 'close-editor'): void
+  (e:'delete',id:string) :void
 }>()
 
 // 다이얼로그 제어

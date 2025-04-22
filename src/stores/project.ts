@@ -85,7 +85,7 @@ export const useProjectStore = defineStore('project', {
     addGroup() {
       const newGroup: Group = {
         id: nanoid(),
-        name: `그룹 ${this.groups.length + 1}`,
+        name: `Group ${this.groups.length + 1}`,
         items: [],
       }
       this.groups.push(newGroup)
@@ -131,7 +131,7 @@ export const useProjectStore = defineStore('project', {
       if (!group) return
       const newItem: Item = {
         id: nanoid(),
-        title: `항목 ${group.items.length + 1}`,
+        title: `Item ${group.items.length + 1}`,
         sequence: {
           actors: [],
           messages: [],
@@ -161,6 +161,9 @@ export const useProjectStore = defineStore('project', {
     markChanged() {
       this.isSaved = false
     },
+    savedChanged() {
+      this.isSaved = !this.isSaved
+    },
 
     updateGroupName(groupId: string, newName: string) {
       const group = this.groups.find((g) => g.id === groupId)
@@ -184,7 +187,34 @@ export const useProjectStore = defineStore('project', {
         actor.name = newName.trim()
       }
     },
+    removeMessage(messageId: string) {
 
+      const currentSequence = this.currentSequence
+
+      if (!currentSequence) return
+
+      const newMessages = this.currentSequence?.messages.filter((i) => i.id !== messageId) || []
+
+      currentSequence.messages = [...newMessages]
+
+      // if (this.selectedGroupId && this.selectedItemId) {
+      //   const group = this.groups.find((g) => g.id === this.selectedGroupId)
+      //   const item = group?.items.find((i) => i.id === this.selectedItemId)
+      //   if (item) {
+      //     item.sequence.messages = [...newMessages]
+      //   }
+      // }
+
+      // if(this.selectedItem){
+      //   this.selectedItem.sequence = {
+      //     ...this.selectedItem.sequence,
+      //     messages: [...newMessages],
+      //   }
+      // }
+
+      this.markChanged()
+      this.savedChanged()
+    },
     async saveToFile() {
       if (!window.electronAPI?.saveToFile) {
         console.error('[store] Electron API가 준비되지 않았습니다.')

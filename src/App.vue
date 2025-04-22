@@ -9,11 +9,11 @@
       <!-- 저장 / 불러오기 버튼 -->
       <v-btn @click="save" variant="outlined" size="small">
         <v-icon left>mdi-content-save</v-icon>
-        저장
+        save
       </v-btn>
       <v-btn @click="load" variant="outlined" size="small" class="ml-2">
         <v-icon left>mdi-folder-open</v-icon>
-        불러오기
+        loadFromFile
       </v-btn>
     </v-app-bar>
     <!-- 메인 레이아웃 -->

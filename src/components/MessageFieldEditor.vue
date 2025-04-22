@@ -1,10 +1,10 @@
 <template>
   <div class="field-block">
     <v-row class="mb-1">
-      <v-col cols="4"><v-text-field v-model="field.name" label="필드명" dense /></v-col>
-      <v-col cols="4"><v-text-field v-model="field.type" label="타입" dense /></v-col>
+      <v-col cols="4"><v-text-field v-model="field.name" label="fieldName" dense /></v-col>
+      <v-col cols="4"><v-text-field v-model="field.type" label="value" dense /></v-col>
       <v-col cols="4" class="d-flex align-center">
-        <v-text-field v-model="field.desc" label="설명" dense />
+        <v-text-field v-model="field.desc" label="desc" dense />
         <v-btn icon @click="$emit('add-child', field)">
           <v-icon size="small">mdi-subdirectory-arrow-right</v-icon>
         </v-btn>

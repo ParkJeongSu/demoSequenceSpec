@@ -21,8 +21,8 @@ function createWindow() {
     },
   })
 
-  //win.loadURL('http://localhost:5173') // 개발용 URL
-  win.loadFile(path.join(__dirname, '../dist/index.html'))  // ← 경로 맞추기
+  win.loadURL('http://localhost:5173') // 개발용 URL
+  // win.loadFile(path.join(__dirname, '../dist/index.html'))  // ← 경로 맞추기
 }
 
 app.whenReady().then(() => {

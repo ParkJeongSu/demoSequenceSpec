@@ -59,8 +59,8 @@
         </marker>
       </defs>
       <line
-        v-for="message in messages"
-        :key="message.id"
+        v-for="message in props.messages"
+        :key="message.id + '-line'"
         :x1="getActorX(message.fromActorId)"
         :y1="getYByLogicalIndex(message.fromLogicalY)"
         :x2="getActorX(message.toActorId)"
@@ -70,7 +70,7 @@
         marker-end="url(#arrowhead)"
       />
       <text
-        v-for="message in messages"
+        v-for="message in props.messages"
         :key="message.id + '-label'"
         :x="(getActorX(message.fromActorId) + getActorX(message.toActorId)) / 2"
         :y="
@@ -83,16 +83,19 @@
         pointer-events="auto"
         @dblclick="handleDoubleClick(message.id)"
       >
-        {{ message.spec?.messageName || 'NewMessage' }}
+      {{ logRender(message) }}
+
       </text>
     </svg>
   </div>
 </template>
 
 <script setup lang="ts">
+
+// {{ message.spec?.messageName || 'NewMessage' }}
 import type { Actor, Message } from '@/stores/project'
 import type { ComponentPublicInstance } from 'vue'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted,watch } from 'vue'
 
 import { useProjectStore } from '@/stores/project'
 
@@ -122,6 +125,19 @@ const props = defineProps<{
   actors: Actor[]
   messages: Message[]
 }>()
+
+watch(
+  () => props.messages,
+  (val) => {
+    console.log('[Canvas] messages prop 변경됨:', val)
+  },
+  { immediate: true, deep: true }
+)
+
+function logRender(msg: Message) {
+  console.log('[RENDERING MESSAGE]', msg.id)
+  return msg.spec?.messageName || 'NewMessage'
+}
 
 const actors = props.actors
 const messages = props.messages

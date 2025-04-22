@@ -25,12 +25,14 @@
     <MessageSpecEditor
       v-if="editingMessage && editingMessage.spec"
       :message="editingMessage.spec"
+      :messageId="editingMessage.id"
       @update-spec="updateMessage"
       @close-editor="editingMessage = null"
+      @delete="deleteMessage"
     />
   </div>
 
-  <div v-else class="pa-4 text-grey">항목을 선택해주세요.</div>
+  <div v-else class="pa-4 text-grey">Please Select Item.</div>
 </template>
 
 <script setup lang="ts">
@@ -45,7 +47,14 @@ import type { Message, MessageSpec, MemoBlockData } from '@/stores/project'
 const store = useProjectStore()
 const sequence = computed(() => store.currentSequence)
 const actors = computed(() => store.currentSequence?.actors ?? [])
-const messages = computed(() => store.currentSequence?.messages || [])
+const messages = computed(() =>{
+  console.log('[computed] messages 갱신됨')
+  const array = store.currentSequence?.messages || []
+  array.forEach(element => {
+    console.log('[computed] messages:', element.id)
+  });
+  return store.currentSequence?.messages || []
+} )
 const memoBlocks = computed(() => store.currentSequence?.memoBlocks || [])
 
 watch(
@@ -54,6 +63,13 @@ watch(
     console.log('[watch] 시퀀스 바뀜:', val)
   },
 )
+watch(
+  () => store.currentSequence?.messages,
+  (val) => {
+    console.log('[watch] Message 바뀜:', val)
+  },
+)
+
 
 console.log(sequence.value?.messages)
 
@@ -137,5 +153,13 @@ const deleteMemo = (id: string) => {
 
   seq.memoBlocks = seq.memoBlocks.filter((m) => m.id !== id)
   store.markChanged()
+}
+
+const deleteMessage = (id:string)=>{
+  const seq = store.currentSequence
+  if(!seq) return
+
+  store.removeMessage(id)
+  editingMessage.value = null
 }
 </script>
