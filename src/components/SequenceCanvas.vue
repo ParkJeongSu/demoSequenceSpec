@@ -87,15 +87,30 @@
 
       </text>
     </svg>
+    <MemoBlock
+      class="memo-block"
+      v-for="memo in memoBlocks"
+      :key="memo.id"
+      :memo="memo"
+      @update="(update)=>{
+          console.log('메모 업데이트:', update)
+          return emit('update-memo',update)
+        }"
+      @delete="(id)=>{
+        console.log('메모 삭제:', id)
+        return emit('delete-memo',id)
+        } "
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 
 // {{ message.spec?.messageName || 'NewMessage' }}
-import type { Actor, Message } from '@/stores/project'
+import type { Actor, Message, MemoBlockData } from '@/stores/project'
 import type { ComponentPublicInstance } from 'vue'
 import { ref, onMounted, onUnmounted,watch } from 'vue'
+import MemoBlock from './MemoBlock.vue'
 
 import { useProjectStore } from '@/stores/project'
 
@@ -119,11 +134,14 @@ const emit = defineEmits<{
     to: { actorId: string; logicalY: number },
   ): void
   (e: 'double-click-message', messageId: string): void
+  (e: 'update-memo', updated: MemoBlockData): void
+  (e: 'delete-memo', id: string): void
 }>()
 
 const props = defineProps<{
   actors: Actor[]
   messages: Message[]
+  memoBlocks : MemoBlockData[]
 }>()
 
 watch(
@@ -276,6 +294,9 @@ function cancelActorEdit() {
 </script>
 
 <style scoped>
+  .memo-block{
+    z-index: 50;
+  }
 .canvas-wrapper {
   display: flex;
   flex-direction: row;

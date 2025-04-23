@@ -11,16 +11,11 @@
       :messages="messages"
       @connect-message="connectMessage"
       @double-click-message="editMessage"
-    />
-    <!-- -->
-    <MemoBlock
-      v-for="memo in memoBlocks"
-      :key="memo.id"
-      :memo="memo"
-      @update="updateMemo"
-      @delete="deleteMemo"
-    />
 
+      :memoBlocks="memoBlocks"
+      @update-memo="updateMemo"
+      @delete-memo="deleteMemo"
+    />
     <!-- 메시지 스펙 팝업 -->
     <MessageSpecEditor
       v-if="editingMessage && editingMessage.spec"
