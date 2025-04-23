@@ -11,7 +11,6 @@
       :messages="messages"
       @connect-message="connectMessage"
       @double-click-message="editMessage"
-
       :memoBlocks="memoBlocks"
       @update-memo="updateMemo"
       @delete-memo="deleteMemo"
@@ -42,14 +41,14 @@ import type { Message, MessageSpec, MemoBlockData } from '@/stores/project'
 const store = useProjectStore()
 const sequence = computed(() => store.currentSequence)
 const actors = computed(() => store.currentSequence?.actors ?? [])
-const messages = computed(() =>{
+const messages = computed(() => {
   console.log('[computed] messages 갱신됨')
   const array = store.currentSequence?.messages || []
-  array.forEach(element => {
+  array.forEach((element) => {
     console.log('[computed] messages:', element.id)
-  });
+  })
   return store.currentSequence?.messages || []
-} )
+})
 const memoBlocks = computed(() => store.currentSequence?.memoBlocks || [])
 
 watch(
@@ -64,7 +63,6 @@ watch(
     console.log('[watch] Message 바뀜:', val)
   },
 )
-
 
 console.log(sequence.value?.messages)
 
@@ -150,9 +148,9 @@ const deleteMemo = (id: string) => {
   store.markChanged()
 }
 
-const deleteMessage = (id:string)=>{
+const deleteMessage = (id: string) => {
   const seq = store.currentSequence
-  if(!seq) return
+  if (!seq) return
 
   store.removeMessage(id)
   editingMessage.value = null

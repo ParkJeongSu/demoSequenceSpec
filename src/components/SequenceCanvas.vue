@@ -83,8 +83,7 @@
         pointer-events="auto"
         @dblclick="handleDoubleClick(message.id)"
       >
-      {{ logRender(message) }}
-
+        {{ logRender(message) }}
       </text>
     </svg>
     <MemoBlock
@@ -92,24 +91,27 @@
       v-for="memo in memoBlocks"
       :key="memo.id"
       :memo="memo"
-      @update="(update)=>{
+      @update="
+        (update) => {
           console.log('메모 업데이트:', update)
-          return emit('update-memo',update)
-        }"
-      @delete="(id)=>{
-        console.log('메모 삭제:', id)
-        return emit('delete-memo',id)
-        } "
+          return emit('update-memo', update)
+        }
+      "
+      @delete="
+        (id) => {
+          console.log('메모 삭제:', id)
+          return emit('delete-memo', id)
+        }
+      "
     />
   </div>
 </template>
 
 <script setup lang="ts">
-
 // {{ message.spec?.messageName || 'NewMessage' }}
 import type { Actor, Message, MemoBlockData } from '@/stores/project'
 import type { ComponentPublicInstance } from 'vue'
-import { ref, onMounted, onUnmounted,watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import MemoBlock from './MemoBlock.vue'
 
 import { useProjectStore } from '@/stores/project'
@@ -141,7 +143,7 @@ const emit = defineEmits<{
 const props = defineProps<{
   actors: Actor[]
   messages: Message[]
-  memoBlocks : MemoBlockData[]
+  memoBlocks: MemoBlockData[]
 }>()
 
 watch(
@@ -149,7 +151,7 @@ watch(
   (val) => {
     console.log('[Canvas] messages prop 변경됨:', val)
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 )
 
 function logRender(msg: Message) {
@@ -294,9 +296,9 @@ function cancelActorEdit() {
 </script>
 
 <style scoped>
-  .memo-block{
-    z-index: 50;
-  }
+.memo-block {
+  z-index: 50;
+}
 .canvas-wrapper {
   display: flex;
   flex-direction: row;

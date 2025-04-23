@@ -35,7 +35,7 @@
 
       <v-card-actions>
         <v-spacer />
-        <v-btn text @click="$emit('delete',props.messageId)">remove Message</v-btn>
+        <v-btn text @click="$emit('delete', props.messageId)">remove Message</v-btn>
         <v-btn text @click="$emit('close-editor')">Cancel</v-btn>
         <v-btn color="primary" @click="save">Save</v-btn>
       </v-card-actions>
@@ -52,13 +52,13 @@ import MessageFieldEditor from './MessageFieldEditor.vue'
 
 const props = defineProps<{
   message: MessageSpec
-  messageId:string
+  messageId: string
 }>()
 
 const emit = defineEmits<{
   (e: 'update-spec', spec: MessageSpec): void
   (e: 'close-editor'): void
-  (e:'delete',id:string) :void
+  (e: 'delete', id: string): void
 }>()
 
 // 다이얼로그 제어

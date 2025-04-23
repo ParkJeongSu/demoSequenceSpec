@@ -188,7 +188,6 @@ export const useProjectStore = defineStore('project', {
       }
     },
     removeMessage(messageId: string) {
-
       const currentSequence = this.currentSequence
 
       if (!currentSequence) return
@@ -196,21 +195,6 @@ export const useProjectStore = defineStore('project', {
       const newMessages = this.currentSequence?.messages.filter((i) => i.id !== messageId) || []
 
       currentSequence.messages = [...newMessages]
-
-      // if (this.selectedGroupId && this.selectedItemId) {
-      //   const group = this.groups.find((g) => g.id === this.selectedGroupId)
-      //   const item = group?.items.find((i) => i.id === this.selectedItemId)
-      //   if (item) {
-      //     item.sequence.messages = [...newMessages]
-      //   }
-      // }
-
-      // if(this.selectedItem){
-      //   this.selectedItem.sequence = {
-      //     ...this.selectedItem.sequence,
-      //     messages: [...newMessages],
-      //   }
-      // }
 
       this.markChanged()
       this.savedChanged()
